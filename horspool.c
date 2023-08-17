@@ -1,61 +1,63 @@
+// horspool algorithm
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_TEXT_LENGTH 1000
-#define MAX_PATTERN_LENGTH 100
+#define max 500
+int table[max];
 
-int horspoolMatch(char text[], char pattern[]) {
-    int textLen = strlen(text);
-    int patternLen = strlen(pattern);
-    
-    if (patternLen > textLen)
-        return -1; // Pattern is longer than the text, no match possible.
+void shiftTable(char pattern[])
+{
+    int i;
+    int size = strlen(pattern);
 
-    int shiftTable[256];
-    for (int i = 0; i < 256; i++) {
-        shiftTable[i] = patternLen;
-    }
+    for(i=0; i<max; i++)
+        table[i] = size;
 
-    for (int i = 0; i < patternLen - 1; i++) {
-        shiftTable[pattern[i]] = patternLen - 1 - i;
-    }
-
-    int i = patternLen - 1;
-    while (i < textLen) {
-        int k = 0;
-        while (k < patternLen && pattern[patternLen - 1 - k] == text[i - k]) {
-            k++;
-        }
-
-        if (k == patternLen) {
-            return i - patternLen + 1; // Match found, return the starting index.
-        }
-
-        i += shiftTable[text[i]];
-    }
-
-    return -1; // Pattern not found in the text.
+    for(int i=0; i<size-1; i++)
+        table[pattern[i]] = size - 1 - i;
 }
 
-int main() {
-    char text[MAX_TEXT_LENGTH];
-    char pattern[MAX_PATTERN_LENGTH];
+int horspool(char src[] , char pattern[])
+{
+    int i,j,k;
+    int size_src = strlen(src); // n
+    int size_pattern = strlen(pattern); // m
 
-    printf("Enter the text: ");
-    fgets(text, sizeof(text), stdin);
-    text[strcspn(text, "\n")] = '\0'; // Remove the newline character from fgets.
+    printf("Size of source string is %d\n",size_src);
+    printf("Size of pattern string is %d\n" , size_pattern);
 
-    printf("Enter the pattern: ");
-    fgets(pattern, sizeof(pattern), stdin);
-    pattern[strcspn(pattern, "\n")] = '\0'; // Remove the newline character from fgets.
-
-    int matchIndex = horspoolMatch(text, pattern);
-
-    if (matchIndex != -1) {
-        printf("Pattern found at index: %d\n", matchIndex);
-    } else {
-        printf("Pattern not found in the text.\n");
+    i = size_pattern - 1;
+    while(i < size_src) {
+        k = 0;
+        while((k < size_pattern) && (pattern[size_pattern - 1 - k] == src[i-k])) {
+            k++;
+        }
+        if(k == size_pattern)
+            return i - size_pattern + 1;
+        else
+            i += table[src[i]];
     }
+    return -1;
+}
 
-    return 0;
+int main()
+{
+    int size = 1000;
+    char src[size] , pattern[size];
+
+    printf("Enter main string\n");
+    gets(src); // input
+    
+    printf("Enter pattern to match\n");
+    gets(pattern); // input
+
+    shiftTable(pattern);
+    int ans = horspool(src , pattern);
+
+    if(ans == -1) {
+        printf("Pattern doesn't exist in source string.\n");
+    }
+    else {
+        printf("Pattern exist in source string at %d.\n", ans);
+    }
 }
